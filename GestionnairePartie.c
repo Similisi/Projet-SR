@@ -413,6 +413,7 @@ void choixCarte(char *message)
     for(int i = 0; i < NB_JOUEUR;i++){
         int n = write(ListeJoueur[i], messagePose, sizeof(messagePose));
     }*/
+    //AffichageTableToutJoueur();
 }
 
 void tourRobot(int numrobot)

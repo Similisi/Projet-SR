@@ -171,7 +171,7 @@ void traitementMessage(char *buffer)
     }
     else if (choix == 'M')
     { // message du serveur
-        // Messagesys(buffer);
+      // Messagesys(buffer);
     }
     else if (choix == 'T')
     { // affichage de la table
@@ -179,67 +179,76 @@ void traitementMessage(char *buffer)
     }
     else if (choix == 'D')
     { // gestion debut tour
-        printf("C'est à vous de jouer\n");
-        // recuperer le choix du joueur
-        char choix[2];
-        printf("Que veux-tu faire ? ( M = voir la main, A = pour voir la table de jeu, P = Poser une carte )\n");
-        scanf("%s", choix);
-        // envoyer le choix au serveur
-        if (choix[0] == 'M')
-        { // affichage de la main
-            printf("Affichage de la main\n");
-            AffichageMain();
-            traitementMessage(ancienbuffer);
-        }
-        else if (choix[0] == 'A')
-        { // affichage de la table
-            system("clear");
-            int n = write(sockfd, choix, sizeof(choix));
-            bzero(buffer, TAILLEMAX);
-            n = read(sockfd, buffer, TAILLEMAX);
-            if (n < 0)
-                error("ERROR reading from socket");
-            AffichageTable(buffer);
-        }
-        else if (choix[0] == 'P')
-        { // poser une carte
-            system("clear");
-            bool retour = false;
-            bool verif = false;
-            char choixcarte[2];
-            char choixposition[2];
-            do
-            {
-                retour = false;
+        bool mauvaischoix = false;
+        do
+        {
+            mauvaischoix = false;
+            printf("C'est à vous de jouer\n");
+            // recuperer le choix du joueur
+            char choix[2];
+            printf("Que veux-tu faire ? ( M = voir la main, A = pour actualiser et voir la table de jeu, P = Poser une carte )\n");
+            scanf("%s", choix);
+            // envoyer le choix au serveur
+            if (choix[0] == 'M' || choix[0] == 'm')
+            { // affichage de la main
+                printf("Affichage de la main\n");
                 AffichageMain();
-                printf("Choix de la carte\n");
-
-                bzero(choixcarte, 2);
-                scanf("%s", choixcarte);
-
-                printf("Choix de la position ou R pour revenir au choix de carte\n");
-
-                bzero(choixposition, 2);
-                scanf("%s", choixposition);
-                if (strcmp(choixposition, "R") == 0)
-                {
-                    retour = true;
+                traitementMessage(ancienbuffer);
+            }
+            else if (choix[0] == 'A' || choix[0] == 'a')
+            { // affichage de la table
+                //system("clear");
+                if(choix[0] == 'a'){
+                    choix[0] = 'A';
                 }
-                else
+                int n = write(sockfd, choix, sizeof(choix));
+                bzero(buffer, TAILLEMAX);
+                n = read(sockfd, buffer, TAILLEMAX);
+                if (n < 0)
+                    error("ERROR reading from socket");
+                AffichageTable(buffer);
+            }
+            else if (choix[0] == 'P' || choix[0] == 'p')
+            { // poser une carte
+                system("clear");
+                bool retour = false;
+                bool verif = false;
+                char choixcarte[2];
+                char choixposition[2];
+                do
                 {
-                    verif = verifTable(choixcarte, choixposition);
-                    if (verif == false)
+                    retour = false;
+                    AffichageMain();
+                    printf("Choix de la carte\n");
+
+                    bzero(choixcarte, 2);
+                    scanf("%s", choixcarte);
+
+                    printf("Choix de la position ou R pour revenir au choix de carte\n");
+
+                    bzero(choixposition, 2);
+                    scanf("%s", choixposition);
+                    if (strcmp(choixposition, "R") == 0)
                     {
                         retour = true;
                     }
-                }
-            } while (retour && !verif);
-            PoserCarte(choixcarte, choixposition);
-        }
-        else
-        {
-            printf("Erreur de message");
-        }
+                    else
+                    {
+                        verif = verifTable(choixcarte, choixposition);
+                        if (verif == false)
+                        {
+                            retour = true;
+                        }
+                    }
+                } while (retour && !verif);
+                PoserCarte(choixcarte, choixposition);
+            }
+            else
+            {
+                printf("Erreur de message\n");
+                mauvaischoix = true;
+            }
+        } while (mauvaischoix);
     }
     else
     {
